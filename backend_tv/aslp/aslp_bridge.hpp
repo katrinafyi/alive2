@@ -11,8 +11,8 @@
 #include "interface.hpp"
 #include "aslt_visitor.hpp"
 
-#include <aslp-cpp/aslp-cpp_export.hpp>
-#include <aslp-cpp/aslp-cpp.hpp>
+// #include <aslp-cpp/aslp-cpp_export.hpp>
+// #include <aslp-cpp/aslp-cpp.hpp>
 
 
 namespace aslp {
@@ -41,7 +41,7 @@ class bridge {
   const llvm::MCCodeEmitter& mce;
   const llvm::MCSubtargetInfo& sti;
   const llvm::MCInstrAnalysis& ia;
-  aslp_connection conn;
+  // aslp_connection conn;
 
 public:
   bridge(lifter_interface_llvm&, const llvm::MCCodeEmitter&, const llvm::MCSubtargetInfo&, const llvm::MCInstrAnalysis&);

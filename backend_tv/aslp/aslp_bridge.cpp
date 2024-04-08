@@ -17,7 +17,7 @@
 #include "interface.hpp"
 #include "aslt_visitor.hpp"
 #include "aslp_bridge.hpp"
-#include <aslp-cpp/aslp-cpp.hpp>
+// #include <aslp-cpp/aslp-cpp.hpp>
 
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Module.h"
@@ -44,17 +44,19 @@ bool getenv_bool(const std::string& name, bool def = false) {
   throw std::invalid_argument("could not parse boolean value: " + str);
 }
 
-aslp_connection make_conn() {
-  auto config = aslp::bridge::config();
-  auto conn = aslp_connection{config.server_addr, static_cast<int>(config.server_port)};
-  conn.wait_active();
-  return conn;
-}
+// aslp_connection make_conn() {
+//   auto config = aslp::bridge::config();
+//   auto conn = aslp_connection{config.server_addr, static_cast<int>(config.server_port)};
+//   conn.wait_active();
+//   return conn;
+// }
 
 namespace aslp {
 
 bridge::bridge(lifter_interface_llvm& iface, const llvm::MCCodeEmitter& mce, const llvm::MCSubtargetInfo& sti, const llvm::MCInstrAnalysis& ia) 
-  : iface{iface}, context{iface.ll_function().getContext()}, mce{mce}, sti{sti}, ia{ia}, conn{make_conn()} { }
+  : iface{iface}, context{iface.ll_function().getContext()}, mce{mce}, sti{sti}, ia{ia}
+  // conn{make_conn()}
+{ }
 
 
 const config_t& bridge::config() {
@@ -186,7 +188,7 @@ std::variant<err_t, stmt_t> bridge::run(const llvm::MCInst& inst, const opcode_t
 
   std::string semantics;
   try {
-    semantics = conn.get_opcode(get_opnum(bytes));
+    // semantics = conn.get_opcode(get_opnum(bytes));
   } catch (const std::runtime_error& e) {
     std::cerr << "aslp_client reported error during disassembly: " << e.what() << std::endl;
     return err_t::missing;

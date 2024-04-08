@@ -28,10 +28,9 @@ message(STATUS "llvm-config: ${LLVM_CONFIG}")
 
 include(FetchContent)
 FetchContent_Declare(aslp-cpp
-  URL https://github.com/UQ-PAC/aslp/archive/refs/heads/partial_eval.tar.gz
-  # GIT_REPOSITORY https://github.com/UQ-PAC/aslp.git
-  # GIT_TAG        clientserver
-  SOURCE_SUBDIR  aslp-cpp
+  URL https://github.com/UQ-PAC/aslp/releases/download/cpp-backend-test/offlineasl-0.1.tar.xz
+  # URL https://github.com/UQ-PAC/aslp/archive/refs/heads/cpp-backend.tar.gz
+  # SOURCE_SUBDIR offlineASL-cpp
   DOWNLOAD_EXTRACT_TIMESTAMP false
   FIND_PACKAGE_ARGS
 )
@@ -45,19 +44,17 @@ target_include_directories(grammar PUBLIC ${PROJECT_BINARY_DIR} ${ANTLR4_INCLUDE
 
 add_library(bridge STATIC "aslp_bridge.cpp" "aslt_visitor.cpp")
 add_dependencies(bridge antlr4_shared)
-target_link_libraries(bridge PUBLIC aslp-cpp::aslp-cpp)
+target_link_libraries(bridge PUBLIC aslp-lifter-llvm)
 target_link_libraries(bridge PUBLIC antlr4_shared grammar)
 target_include_directories(bridge PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/..")
 target_include_directories(bridge PRIVATE "${LLVM_SOURCE_DIR}/lib")
 
 target_compile_definitions(bridge PRIVATE ASLT_DIR="${CMAKE_CURRENT_SOURCE_DIR}/aslt")
-target_compile_options(bridge PRIVATE -Wno-error=unused-variable -Wno-error=unused-function -Wno-error=unused-but-set-variable)
+target_compile_options(bridge PRIVATE -Wno-error=unused-variable -Wno-error=unused-private-field -Wno-error=unused-function -Wno-error=unused-but-set-variable)
 IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
   target_compile_options(bridge PRIVATE -g -O0 -fsanitize=address)
   target_link_options(bridge PRIVATE -g -O0 -fsanitize=address)    
 ENDIF()
-
-
 
 execute_process(COMMAND "${LLVM_CONFIG}" --libs support core irreader bitwriter
                 COMMAND_ERROR_IS_FATAL ANY
