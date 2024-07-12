@@ -31,12 +31,11 @@ except ImportError:
       yield x
 
 
-root_dir = Path(sys.argv[1])
+root_dir = Path(sys.argv[1] if len(sys.argv) >= 2 else '/nowhere')
 logs_dir = root_dir / 'logs'
 aslplogs_dir = root_dir / 'logs-aslp'
-assert logs_dir.is_dir() and aslplogs_dir.is_dir(), \
-  f"first argument should be a directory containing 'logs' and 'logs-aslp'"
-# XXX: changed from previous command-line of "prepare.py logs logs-aslp"
+assert logs_dir.is_dir() and aslplogs_dir.is_dir(), ( # XXX: changed from previous command-line of `prepare.py logs logs-aslp`
+  f"first argument should be a directory containing 'logs' and 'logs-aslp'")
 
 out_csv = Path(sys.argv[2] if len(sys.argv) >= 3 else 'table.tar.gz')
 
@@ -111,19 +110,18 @@ def process_log(log: Path, aslplog: Path) -> Row:
 
 def main():
   logs = list(logs_dir.glob('*.log'))
+
+  classified: dict[Path, Row] = cast(Any, {f: () for f in logs})
+  random.shuffle(logs) # XXX: be aware of shuffle!
+
   aslplogs = [aslplogs_dir / f.name for f in logs]
   for f in aslplogs:
     assert f.exists(), f
 
-  classified: dict[Path, Row] = cast(Any, {f: () for f in logs})
-  random.shuffle(logs)
-
   with concurrent.futures.ThreadPoolExecutor(8) as executor:
-    # futures = {pool.submit(process_log, f, aslplogs_dir / f.name): f for f in logs}
-    futures = executor.map(lambda l, a: (l, process_log(l, a)), logs, aslplogs)
-    for f, result in tqdm(futures, total=len(logs), mininterval=1):
+    futures = executor.map(process_log, logs, aslplogs)
+    for f, result in tqdm(zip(logs, futures), total=len(logs), mininterval=1):
       classified[f] = result
-
 
   keys = ['id']
   keys += sorted(set(k for x in classified.values() for k in x.encoding_counts.keys()))
