@@ -32,8 +32,11 @@ These instructions will install all of the required dependencies and build the b
    ```bash
    ./aslp-server.sh
    ```
-   This will run aslp-server behind a Varnish cache server, caching the ASLp semantics in memory.
-   See the script for more details.
+   Alternatively, you can run the aslp-server behind a Varnish cache server, which will cache the ASLp semantics in-memory.
+   ```bash
+   ./aslp-server.sh
+   ```
+   See the script for more details. The cache will be cleared every time the script is restarted.
 5. Use backend-tv, for example:
    ```bash
    ./build/backend-tv ./tests/arm-tv/cmp/sgt.aarch64.ll
